@@ -33,12 +33,11 @@
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
     }
     .hidden {
-      display: none;
+      display: none !important;
     }
     textarea.form-control {
       font-size: 0.95rem;
     }
-
     @media (max-width: 576px) {
       h5 {
         font-size: 1.05rem;
@@ -48,37 +47,49 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <h3 class="text-center mb-4">Daily Health Check-In</h3>
+  <div class="container text-center">
+    <h3 class="mb-4">Daily Health Check-In</h3>
     <div id="questions"></div>
+
+    <button id="submitBtn" class="btn btn-primary btn-lg mt-3">Submit</button>
+
+    <div id="thankYou" class="mt-4 hidden">
+      <h4>✅ Thank you for completing your check-in!</h4>
+      <p>You will be redirected shortly...</p>
+    </div>
   </div>
 
   <script>
     const questions = [
-      "Did you wake up today at 6:00 Am ? ",
-      "Did you rememeber that waking up is a phyiscal movement and not a mental fight ?",
-      "Did you stop drinking Coffe by Al-ASR Today?",
-      "Did you Drink only 2 cups of coffee & 1 Tea ? Max is 3",
-      "Did you exercise today?",
-      "Did you Pray 5 Times Today?",
-      "Did you remember That Life is rigged  and can't be WON?",
-      "Did you remember to do only what made you happy like Hisham Suggested?",
-      "have you tried to stay out of yourself Today ? ",
-      "Did you look for a Mate Today ?",
-      "Did you Share Today ? , Did you speak to your sponser ? "
+      { text: "Did you wake up today at 6:00 Am ?", enableTextarea: true },
+      { text: "Did you rememeber that waking up is a phyiscal movement and not a mental fight ?", enableTextarea: false },
+      { text: "Did you stop drinking Coffe by Al-ASR Today?", enableTextarea: false },
+      { text: "Did you Drink only 2 cups of coffee & 1 Tea ? Max is 3", enableTextarea: true },
+      { text: "Did you exercise today?", enableTextarea: false },
+      { text: "Did you Pray 5 Times Today?", enableTextarea: false },
+      { text: "Did you remember That Life is rigged  and can't be WON?", enableTextarea: true },
+      { text: "Did you remember to do only what made you happy like Hisham Suggested?", enableTextarea: true },
+      { text: "have you tried to stay out of yourself Today ? ", enableTextarea: false },
+      { text: "Did you go out to look for a Mate Today ?", enableTextarea: true },
+      { text: "Did you Share Today ? , Did you speak to your sponser ? ", enableTextarea: false }
     ];
 
     const container = document.getElementById("questions");
 
-    questions.forEach((text, i) => {
+    questions.forEach((q, i) => {
       const id = `q${i}`;
       const block = document.createElement("div");
       block.className = "question-block";
+
+      const textareaHTML = q.enableTextarea
+        ? `<textarea class="form-control" rows="3" placeholder="Any comments? (optional)"></textarea>`
+        : "";
+
       block.innerHTML = `
-        <h5>${i + 1}. ${text}</h5>
+        <h5>${i + 1}. ${q.text}</h5>
         <button id="${id}Yes" class="btn btn-outline-success diet-button">Yes</button>
         <button id="${id}No" class="btn btn-outline-danger diet-button">No</button>
-        <textarea class="form-control" rows="3" placeholder="Any comments? (optional)"></textarea>
+        ${textareaHTML}
       `;
       container.appendChild(block);
 
@@ -96,6 +107,16 @@
         noBtn.classList.add("btn-danger", "clicked");
         yesBtn.classList.add("hidden");
       });
+    });
+
+    document.getElementById("submitBtn").addEventListener("click", () => {
+      document.getElementById("questions").classList.add("hidden");
+      document.getElementById("submitBtn").classList.add("hidden");
+      document.getElementById("thankYou").classList.remove("hidden");
+
+      setTimeout(() => {
+        window.location.href = "https://www.google.com";
+      }, 5000);
     });
   </script>
 </body>
