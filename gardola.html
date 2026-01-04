@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Step One inventory</title>
+  <title>Step 1 Self Check</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
@@ -48,7 +48,7 @@
 </head>
 <body>
   <div class="container text-center">
-    <h3 class="mb-4">Daily Health Check-In</h3>
+    <h3 class="mb-4">Spot Check - Gard Ola</h3>
     <div id="questions"></div>
 
     <button id="submitBtn" class="btn btn-primary btn-lg mt-3">Submit</button>
@@ -61,43 +61,41 @@
 
   <script>
     const questions = [
-      { text: "Can you see your Denial ? <br /> Denial is the part of our disease that tells us we don't have a disease. When we are in
-denial, we are unable to see the reality of our addiction. We minimize its effect. We
-blame others, citing the too-high expectations of families, friends, and employers. We
-compare ourselves with other addicts whose addiction seems "worse" than our own. We
-may blame one particular drug. If we have been abstinent from drugs for some time, we
-might compare the current manifestation of our addiction with our drug use, rationalizing
-that nothing we do today could possibly be as bad as that was! One of the easiest ways to
-tell that we are in denial is when we find ourselves giving plausible but untrue reasons for
-our behavior. ", enableTextarea: true },
-      { text: "Isolation? <br /> i am I Alone ?", enableTextarea: true },
-      { text: " We are powerless when the driving force in our life is beyond our control. Our addiction
-certainly qualifies as such an uncontrollable, driving force. We cannot moderate or
-control our drug use or other compulsive behaviors, even when they are causing us to
-lose the things that matter most to us. We cannot stop, even when to continue will surely
-result in irreparable physical damage. We find ourselves doing things that we would
-never do if it weren't for our addiction; things that make us shudder with shame when we
-think of them. We may even decide that we don't want to use, that we aren't going to use,
-and realize we are simply unable to stop when the opportunity presents itself. <br /> am i Powerless ? ", enableTextarea: true },
-      { text: "Outward unmanageability is often identified by such things as arrests, job losses, and
-family problems. Some of our members have been incarcerated. Some have never been
-able to sustain any kind of relationship for more than a few months. Some of us have
-been cut off from our families, asked never again to contact them.
-Inner or personal unmanageability is often identified by unhealthy or untrue belief
-Systems about ourselves, the world we live in, and the people in our lives. We may
-believe we're worthless. We may believe that the world revolves around us -not just that
-it should, but that it does. We may believe that it isn't really our job to take care of
-ourselves; someone else should do that. We may believe that the responsibilities the
-average person takes on as a matter of course are just too large a burden for us to bear.
-We may over or under react to events in our lives. Emotional volatility is often one of the
-most obvious ways in which we can identify personal unmanageability. <br /> Do i live in Unmanageability ? ", enableTextarea: true },
-      { text: " Reservations are places which i kept to handle my self with no program or help <br /> Reservation ? ", enableTextarea: true },
-      { text: " Surrender, on the other hand, is what happens after we've accepted the
-First Step as something that is true for us and have accepted that recovery is the solution.
-We don't want our lives to be the way they have been. We don't want to keep feeling the
-way we've been feeling. <br /> Do i surrender ? ", enableTextarea: true },
-     
-
+      {
+        text: "Can you see your Denial?",
+        enableTextarea: true,
+        hint: "Denial is the part of our disease that tells us we don't have a disease. When we are in denial, we are unable to see the reality of our addiction. We minimize its effect. We blame others, citing the too-high expectations of families, friends, and employers. We compare ourselves with other addicts whose addiction seems 'worse' than our own. We may blame one particular drug. If we have been abstinent from drugs for some time, we might compare the current manifestation of our addiction with our drug use, rationalizing that nothing we do today could possibly be as bad as that was! One of the easiest ways to tell that we are in denial is when we find ourselves giving plausible but untrue reasons for our behavior."
+      },
+      {
+        text: "Isolation",
+        enableTextarea: true,
+        hint: "Am I alone?"
+      },
+      {
+        text: "Compulsive Behaviour",
+        enableTextarea: true,
+        hint: "Am I under fekra mosaytra and ra‘gba qahrya? Hal a2dar ma3mlhaash?"
+      },
+      {
+        text: "Can I see my powerlessness?",
+        enableTextarea: true,
+        hint: "We are powerless when the driving force in our life is beyond our control. Our addiction certainly qualifies as such an uncontrollable, driving force. We cannot moderate or control our drug use or other compulsive behaviors, even when they are causing us to lose the things that matter most to us. We cannot stop, even when to continue will surely result in irreparable physical damage. We find ourselves doing things that we would never do if it weren't for our addiction; things that make us shudder with shame when we think of them. We may even decide that we don't want to use, that we aren't going to use, and realize we are simply unable to stop when the opportunity presents itself."
+      },
+      {
+        text: "Can I see my unmanageability, internal & external?",
+        enableTextarea: true,
+        hint: "Outward unmanageability is often identified by such things as arrests, job losses, and family problems. Some of our members have been incarcerated. Some have never been able to sustain any kind of relationship for more than a few months. Some of us have been cut off from our families, asked never again to contact them.\n\nInner or personal unmanageability is often identified by unhealthy or untrue belief systems about ourselves, the world we live in, and the people in our lives. We may believe we're worthless. We may believe that the world revolves around us — not just that it should, but that it does. We may believe that it isn't really our job to take care of ourselves; someone else should do that. We may believe that the responsibilities the average person takes on as a matter of course are just too large a burden for us to bear. We may over- or under-react to events in our lives. Emotional volatility is often one of the most obvious ways in which we can identify personal unmanageability."
+      },
+      {
+        text: "Do I have any reservations?",
+        enableTextarea: true,
+        hint: "Reservations are places which I kept to handle myself with no program or help."
+      },
+      {
+        text: "Do I surrender?",
+        enableTextarea: true,
+        hint: "Surrender, on the other hand, is what happens after we've accepted the First Step as something that is true for us and have accepted that recovery is the solution. We don't want our lives to be the way they have been. We don't want to keep feeling the way we've been feeling."
+      }
     ];
 
     const container = document.getElementById("questions");
@@ -108,7 +106,7 @@ way we've been feeling. <br /> Do i surrender ? ", enableTextarea: true },
       block.className = "question-block";
 
       const textareaHTML = q.enableTextarea
-        ? `<textarea class="form-control" rows="3" placeholder="Describe if needed... "></textarea>`
+        ? `<textarea class="form-control" rows="3" placeholder="${q.hint}"></textarea>`
         : "";
 
       block.innerHTML = `
