@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Daily Check-in</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      padding: 1rem;
+      font-family: Arial, sans-serif;
+      background-color: #f8f9fa;
+    }
+    .container {
+      max-width: 100%;
+      background-color: white;
+      padding: 1.5rem;
+      border-radius: 1rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+    .question-block {
+      margin-bottom: 2rem;
+    }
+    .diet-button {
+      width: 100%;
+      margin-bottom: 10px;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+      padding: 0.75rem;
+    }
+    .diet-button.clicked {
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+    }
+    .hidden {
+      display: none !important;
+    }
+    textarea.form-control {
+      font-size: 0.95rem;
+    }
+    @media (max-width: 576px) {
+      h5 {
+        font-size: 1.05rem;
+        text-align: left;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container text-center">
+    <h3 class="mb-4">Daily Health Check-In</h3>
+   
+    <div id="questions"></div>
+
+    <button id="submitBtn" class="btn btn-primary btn-lg mt-3">Submit</button>
+
+    <div id="thankYou" class="mt-4 hidden">
+      <h4>✅ Thank you for completing your check-in!</h4>
+      <p>You will be redirected shortly...</p>
+    </div>
+  </div>
+
+  <script>
+    const questions = [
+      { text: "Were you aware your powerlesness Today ? ", enableTextarea: true },
+      { text: "When we retire at night, we constructively review our day. Were We restentful ? ", enableTextarea: true },
+      { text: "Were We Selfish ? ", enableTextarea: true },
+      { text: "Were We Dishonest ? ", enableTextarea: true },
+      { text: "Were We Afraid ? ", enableTextarea: true },
+      { text: "Do we owe an Apology ", enableTextarea: true },
+      { text: "Have We Kept Something to ourselves which should be discussed with another person at once ? ", enableTextarea: true },
+      { text: "Were we kind and loving toward all ? ", enableTextarea: true },
+      { text: "What Could We have Done better ? ", enableTextarea: true }, 
+      { text: "Were we thinking of ourselves most of the time ? ", enableTextarea: true },
+      { text: "Or we were thinking of what we could do for others, of what we could pack into the stream of life ? ", enableTextarea: true },
+      // { text: "Were we living inside ourselves most of the time ? ", enableTextarea: false }, 
+      // -------------- starting of personal stuff
+      { text: "have you tried to stay out of yourself Today ? ", enableTextarea: false },
+      { text: "Did you wake up today at 6:00 Am ?", enableTextarea: false }, 
+     // { text: "Did you exercise today?", enableTextarea: false },
+      // { text: "Did you rememeber that waking up is a phyiscal movement and not a mental fight ?", enableTextarea: false },
+      { text: "Did you go out to look for a Mate Today ?", enableTextarea: false } //,
+     // { text: "Did you stop drinking Coffe by Al-ASR Today?", enableTextarea: false },
+     // { text: "Did you Drink only 1 Shot of espresso and 2 - 3 of Half caf ? ", enableTextarea: true },
+     // { text: "Did you Pray 5 Times Today?", enableTextarea: false },
+     // { text: "Did you remember That Life is rigged  and can't be WON? Strategically can't try to win it", enableTextarea: true },
+     // { text: "Do you understand that your mind is not working properly, this is natural and this is how your mind is intended so that life is challenging and therfore there is right and wrong", enableTextarea: false },
+    //  { text: "Do you understand that if everyone's mind is also not working correctly like you and the proof is that there are wrong actions in life and people are strugling as well like you?", enableTextarea: false }, 
+    //  { text:"Did you practice acceptance ? Not fighting the present Moment and taking responsibility of your actions ", enableTextarea: true },
+    //  { text: "Did you remember to do only what make you happy in the here and now like Hisham Suggested?", enableTextarea: true },
+     // { text: "Did you Share Today ? , Did you speak to your sponser ? ", enableTextarea: true },
+    //  { text: "do you understand that you need to let go of what you want , focus on working the steps and let god take care of outside world on your behalf (Step 3 ) ? <br />  Wu-Wei ( KC - DO - HF ) ", enableTextarea: true } 
+    ];
+
+    const container = document.getElementById("questions");
+
+    questions.forEach((q, i) => {
+      const id = `q${i}`;
+      const block = document.createElement("div");
+      block.className = "question-block";
+
+      const textareaHTML = q.enableTextarea
+        ? `<textarea class="form-control" rows="3" placeholder="Describe if needed... "></textarea>`
+        : "";
+
+      block.innerHTML = `
+        <h5>${i + 1}. ${q.text}</h5>
+        <button id="${id}Yes" class="btn btn-outline-success diet-button">Yes</button>
+        <button id="${id}No" class="btn btn-outline-danger diet-button">No</button>
+        ${textareaHTML}
+      `;
+      container.appendChild(block);
+
+      const yesBtn = block.querySelector(`#${id}Yes`);
+      const noBtn = block.querySelector(`#${id}No`);
+
+      yesBtn.addEventListener("click", () => {
+        yesBtn.classList.remove("btn-outline-success");
+        yesBtn.classList.add("btn-success", "clicked");
+        noBtn.classList.add("hidden");
+      });
+
+      noBtn.addEventListener("click", () => {
+        noBtn.classList.remove("btn-outline-danger");
+        noBtn.classList.add("btn-danger", "clicked");
+        yesBtn.classList.add("hidden");
+      });
+    });
+
+    document.getElementById("submitBtn").addEventListener("click", () => {
+      document.getElementById("questions").classList.add("hidden");
+      document.getElementById("submitBtn").classList.add("hidden");
+      document.getElementById("thankYou").classList.remove("hidden");
+
+      setTimeout(() => {
+        window.location.href = "https://www.google.com";
+      }, 5000);
+    });
+  </script>
+</body>
+</html>
