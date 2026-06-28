@@ -48,8 +48,8 @@
 </head>
 <body>
   <div class="container text-center">
-    <h3 class="mb-4">Daily Spirtiual Check-In</h3>
-   
+    <h3 class="mb-4">Daily Spiritual Check-In</h3>
+
     <div id="questions"></div>
 
     <button id="submitBtn" class="btn btn-primary btn-lg mt-3">Submit</button>
@@ -62,43 +62,163 @@
 
   <script>
     const questions = [
-    //  { text: "Were you aware your powerlesness Today ? ", enableTextarea: true },
-      { text: "When we retire at night, we constructively review our day. Were We restentful ? ", enableTextarea: true },
-      { text: "Were We Selfish ? ", enableTextarea: true },
-      { text: "Were We Dishonest ? ", enableTextarea: true },
-      { text: "Were We Afraid ? ", enableTextarea: true },
-      { text: "Do we owe an Apology ", enableTextarea: true },
-      { text: "Have We Kept Something to ourselves which should be discussed with another person at once ? ", enableTextarea: true },
-      { text: "Were we kind and loving toward all ? ", enableTextarea: true },
-      { text: "What Could We have Done better ? ", enableTextarea: true }, 
-      // -------------- starting of personal stuff
-      { text: "Were you aware that life and everything which is happening is just a temp phase in your existence and not the final Destination? ", enableTextarea: true },
-       { text: "Are you chasing life or walking towards god ? Are you inside the movie called life or watching it?", enableTextarea: true },
-      { text: "Are you living a spirtiual life through acting according to the spiritual principles ? ", enableTextarea: false }, 
-      { text: "Did you Anchor ur self today through the ACE? When ?", enableTextarea: true } ,
-      { text: "Did you meditate Today ?", enableTextarea: false } ,
-     { text: "Were you aware that CONTROL is just an illusion Today? Where did you practice Control ? Control is defined as output Attachment", enableTextarea: true },
-     { text: "Did you spend 5 Mins Speaking to God Today at morning? ", enableTextarea: false },
-      { text: "Did you drink only two cups of coffee today ? ", enableTextarea: true }
-
-    
+      {
+        text: "When we retire at night, we constructively review our day. Were we resentful?",
+        yesLabel: "Yes",
+        noLabel: "No",
+        enableTextarea: true,
+        enableTextHint: true,
+        textHint: "Describe if needed..."
+      },
+      {
+        text: "Were we selfish?",
+        yesLabel: "Yes",
+        noLabel: "No",
+        enableTextarea: true,
+        enableTextHint: true,
+        textHint: "Describe if needed..."
+      },
+      {
+        text: "Were we dishonest?",
+        yesLabel: "Yes",
+        noLabel: "No",
+        enableTextarea: true,
+        enableTextHint: true,
+        textHint: "Describe if needed..."
+      },
+      {
+        text: "Were we afraid?",
+        yesLabel: "Yes",
+        noLabel: "No",
+        enableTextarea: true,
+        enableTextHint: true,
+        textHint: "Describe if needed..."
+      },
+      {
+        text: "Do we owe an apology?",
+        yesLabel: "Yes",
+        noLabel: "No",
+        enableTextarea: true,
+        enableTextHint: true,
+        textHint: "Who do you need to apologize to?"
+      },
+      {
+        text: "Have we kept something to ourselves which should be discussed with another person at once?",
+        yesLabel: "Yes",
+        noLabel: "No",
+        enableTextarea: true,
+        enableTextHint: true,
+        textHint: "Describe if needed..."
+      },
+      {
+        text: "Were we kind and loving toward all?",
+        yesLabel: "Yes",
+        noLabel: "No",
+        enableTextarea: true,
+        enableTextHint: false,
+        textHint: "This text is hidden while enableTextHint is false."
+      },
+      {
+        text: "What could we have done better?",
+        yesLabel: "I reflected on this",
+        noLabel: "Not yet",
+        enableTextarea: true,
+        enableTextHint: true,
+        textHint: "Write your reflection..."
+      },
+      // Personal questions
+      {
+        text: "Were you aware that life and everything which is happening is just a temporary phase in your existence and not the final destination?",
+        yesLabel: "Yes",
+        noLabel: "No",
+        enableTextarea: true,
+        enableTextHint: true,
+        textHint: "Describe if needed..."
+      },
+      {
+        text: "Are you Running After life or walking towards God? Are you inside the movie called life or watching it?",
+        yesLabel: "Walking towards God",
+        noLabel: "Running After life",
+        enableTextarea: true,
+        enableTextHint: true,
+        textHint: "Describe your experience today..."
+      },
+      {
+        text: "Are you living a spiritual life by acting according to spiritual principles?",
+        yesLabel: "Yes",
+        noLabel: "No",
+        enableTextarea: false,
+        enableTextHint: false,
+        textHint: ""
+      },
+      {
+        text: "Did you anchor yourself today through the ACE? When?",
+        yesLabel: "Yes",
+        noLabel: "No",
+        enableTextarea: true,
+        enableTextHint: true,
+        textHint: "When did you practice it?"
+      },
+      {
+        text: "Did you meditate today?",
+        yesLabel: "Yes",
+        noLabel: "No",
+        enableTextarea: false,
+        enableTextHint: false,
+        textHint: ""
+      },
+      {
+        text: "Were you aware that control is just an illusion today? Where did you practice control? Control is defined as output attachment.",
+        yesLabel: "Yes",
+        noLabel: "No",
+        enableTextarea: true,
+        enableTextHint: true,
+        textHint: "Where did you practice control?"
+      },
+      {
+        text: "Did you spend five minutes speaking to God this morning?",
+        yesLabel: "Yes",
+        noLabel: "No",
+        enableTextarea: false,
+        enableTextHint: false,
+        textHint: ""
+      },
+      {
+        text: "Did you drink only two cups of coffee today?",
+        yesLabel: "Yes",
+        noLabel: "No",
+        enableTextarea: true,
+        enableTextHint: true,
+        textHint: "How many cups did you have?"
+      }
     ];
 
     const container = document.getElementById("questions");
+
+    const escapeHTML = (value) => String(value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
 
     questions.forEach((q, i) => {
       const id = `q${i}`;
       const block = document.createElement("div");
       block.className = "question-block";
 
+      // These defaults keep older questions working if the new fields are omitted.
+      const yesLabel = q.yesLabel ?? "Yes";
+      const noLabel = q.noLabel ?? "No";
+      const textHint = q.enableTextHint !== false ? (q.textHint ?? "Describe if needed...") : "";
       const textareaHTML = q.enableTextarea
-        ? `<textarea class="form-control" rows="3" placeholder="Describe if needed... "></textarea>`
+        ? `<textarea class="form-control" rows="3" placeholder="${escapeHTML(textHint)}"></textarea>`
         : "";
 
       block.innerHTML = `
-        <h5>${i + 1}. ${q.text}</h5>
-        <button id="${id}Yes" class="btn btn-outline-success diet-button">Yes</button>
-        <button id="${id}No" class="btn btn-outline-danger diet-button">No</button>
+        <h5>${i + 1}. ${escapeHTML(q.text)}</h5>
+        <button id="${id}Yes" class="btn btn-outline-success diet-button">${escapeHTML(yesLabel)}</button>
+        <button id="${id}No" class="btn btn-outline-danger diet-button">${escapeHTML(noLabel)}</button>
         ${textareaHTML}
       `;
       container.appendChild(block);
