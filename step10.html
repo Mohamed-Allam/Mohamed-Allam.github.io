@@ -21,6 +21,16 @@
     .question-block {
       margin-bottom: 2rem;
     }
+    .question-block.is-leaving {
+      pointer-events: none;
+      animation: answer-complete 0.45s ease forwards;
+    }
+    @keyframes answer-complete {
+      to {
+        opacity: 0;
+        transform: translateY(-16px) scale(0.98);
+      }
+    }
     .diet-button {
       width: 100%;
       margin-bottom: 10px;
@@ -42,6 +52,11 @@
       h5 {
         font-size: 1.05rem;
         text-align: left;
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .question-block.is-leaving {
+        animation-duration: 0.01ms;
       }
     }
   </style>
@@ -136,9 +151,9 @@
         textHint: "Describe if needed..."
       },
       {
-        text: "Are you Running After life or walking towards God? Are you inside the movie called life or watching it?",
+        text: "Are you chasing life or walking towards God? Are you inside the movie called life or watching it?",
         yesLabel: "Walking towards God",
-        noLabel: "Running After life",
+        noLabel: "Chasing life",
         enableTextarea: true,
         enableTextHint: true,
         textHint: "Describe your experience today..."
@@ -168,12 +183,12 @@
         textHint: ""
       },
       {
-        text: "Were you aware that control is just an illusion today? Where did you practice control? ",
+        text: "Were you aware that control is just an illusion today? Where did you practice control? Control is defined as output attachment.",
         yesLabel: "Yes",
         noLabel: "No",
         enableTextarea: true,
         enableTextHint: true,
-        textHint: "Control is defined as output attachment"
+        textHint: "Where did you practice control?"
       },
       {
         text: "Did you spend five minutes speaking to God this morning?",
@@ -226,16 +241,25 @@
       const yesBtn = block.querySelector(`#${id}Yes`);
       const noBtn = block.querySelector(`#${id}No`);
 
+      const completeQuestion = (selectedBtn, otherBtn, selectedClass, outlineClass) => {
+        yesBtn.disabled = true;
+        noBtn.disabled = true;
+        selectedBtn.classList.remove(outlineClass);
+        selectedBtn.classList.add(selectedClass, "clicked");
+        otherBtn.classList.add("hidden");
+
+        setTimeout(() => {
+          block.classList.add("is-leaving");
+          block.addEventListener("animationend", () => block.remove(), { once: true });
+        }, 1000);
+      };
+
       yesBtn.addEventListener("click", () => {
-        yesBtn.classList.remove("btn-outline-success");
-        yesBtn.classList.add("btn-success", "clicked");
-        noBtn.classList.add("hidden");
+        completeQuestion(yesBtn, noBtn, "btn-success", "btn-outline-success");
       });
 
       noBtn.addEventListener("click", () => {
-        noBtn.classList.remove("btn-outline-danger");
-        noBtn.classList.add("btn-danger", "clicked");
-        yesBtn.classList.add("hidden");
+        completeQuestion(noBtn, yesBtn, "btn-danger", "btn-outline-danger");
       });
     });
 
