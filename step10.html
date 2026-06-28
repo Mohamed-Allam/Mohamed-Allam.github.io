@@ -386,6 +386,33 @@
       background: #fff;
     }
 
+    .continue-button {
+      width: min(100%, 220px);
+      min-height: 54px;
+      margin: 0.9rem 0 0 auto;
+      padding: 0.8rem 1.25rem;
+      display: block;
+      border: 1px solid transparent;
+      border-radius: 18px;
+      background: var(--text);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 180ms var(--ease), background 180ms ease, box-shadow 180ms ease;
+    }
+
+    .continue-button:hover {
+      transform: translateY(-2px);
+      background: #090909;
+      box-shadow: 0 10px 22px rgba(37, 36, 34, 0.16);
+    }
+
+    .continue-button:focus-visible {
+      outline: 3px solid rgba(129, 79, 203, 0.45);
+      outline-offset: 4px;
+    }
+
     .completion-view,
     .thank-you-view {
       max-width: 760px;
@@ -568,6 +595,10 @@
       .reflection-input {
         min-height: 98px;
         margin-top: 1rem;
+      }
+
+      .continue-button {
+        width: 100%;
       }
     }
 
@@ -814,6 +845,7 @@
 
     let currentQuestion = 0;
     let isTransitioning = false;
+    let selectedAnswer = null;
     let soundEnabled = true;
     let audioContext;
     const responses = [];
@@ -882,6 +914,8 @@
         ? `<textarea id="reflectionInput" class="reflection-input" rows="3" placeholder="${escapeHTML(hint)}" aria-label="Optional reflection for question ${currentQuestion + 1}"></textarea>`
         : "";
 
+      selectedAnswer = null;
+
       questionMount.innerHTML = `
         <article class="question-view" aria-labelledby="questionText">
           <div class="question-illustration" aria-hidden="true">
@@ -899,6 +933,7 @@
               </button>
             </div>
             ${textarea}
+            <button class="continue-button" type="button" hidden>Continue</button>
           </div>
         </article>
       `;
@@ -906,27 +941,40 @@
       questionMount.querySelectorAll("[data-answer]").forEach((button) => {
         button.addEventListener("click", () => chooseAnswer(button.dataset.answer));
       });
+      questionMount.querySelector(".continue-button").addEventListener("click", continueQuestion);
 
       updateProgress();
     };
 
-    const chooseAnswer = async (answer) => {
+    const chooseAnswer = (answer) => {
       if (isTransitioning) return;
+
+      const selected = questionMount.querySelector(`[data-answer="${answer}"]`);
+      const unselected = questionMount.querySelector(`[data-answer]:not([data-answer="${answer}"])`);
+      const continueButton = questionMount.querySelector(".continue-button");
+
+      selectedAnswer = answer;
+      playAnswerSound(answer);
+      questionMount.querySelectorAll("[data-answer]").forEach((button) => {
+        button.classList.remove("is-selected", "is-unselected");
+      });
+      selected.classList.add("is-selected");
+      unselected.classList.add("is-unselected");
+      continueButton.hidden = false;
+      answerStatus.textContent = `${selected.textContent.trim()} selected. You can add a comment or continue.`;
+    };
+
+    async function continueQuestion() {
+      if (!selectedAnswer || isTransitioning) return;
       isTransitioning = true;
 
       const view = questionMount.querySelector(".question-view");
-      const selected = questionMount.querySelector(`[data-answer="${answer}"]`);
-      const unselected = questionMount.querySelector(`[data-answer]:not([data-answer="${answer}"])`);
       const reflection = questionMount.querySelector(".reflection-input")?.value.trim() || "";
-
-      responses[currentQuestion] = { answer, reflection };
-      playAnswerSound(answer);
-      selected.classList.add("is-selected");
-      unselected.classList.add("is-unselected");
+      responses[currentQuestion] = { answer: selectedAnswer, reflection };
       questionMount.querySelectorAll("button, textarea").forEach((control) => control.disabled = true);
-      answerStatus.textContent = `${selected.textContent.trim()} selected. Moving to the next question.`;
+      answerStatus.textContent = "Moving to the next question.";
 
-      await wait(1000);
+      await wait(180);
       view.classList.add("is-leaving");
       await wait(reducedMotion.matches ? 20 : 460);
 
