@@ -1,0 +1,716 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fffaf3">
+  <title>Spot Check</title>
+  <style>
+    :root {
+      --background: #fffaf3;
+      --surface: rgba(255, 255, 255, 0.88);
+      --text: #252422;
+      --muted: #756e67;
+      --line: #e9ddd1;
+      --coral: #ee6f51;
+      --coral-soft: #fff0e9;
+      --yellow: #f6b73c;
+      --lavender: #9d82c6;
+      --blue: #6993c6;
+      --shadow: 0 24px 65px rgba(86, 57, 30, 0.1);
+      --ease: cubic-bezier(.2, .8, .2, 1);
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      min-height: 100%;
+      background: var(--background);
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      overflow-x: clip;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 12% 10%, rgba(246, 183, 60, 0.12), transparent 24rem),
+        radial-gradient(circle at 92% 88%, rgba(157, 130, 198, 0.11), transparent 25rem),
+        var(--background);
+      font-family: ui-rounded, "SF Pro Rounded", "Nunito", "Avenir Next", system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button,
+    input,
+    textarea {
+      font: inherit;
+    }
+
+    button,
+    a {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .app-shell {
+      width: min(1120px, calc(100% - 32px));
+      min-height: 100vh;
+      margin: 0 auto;
+      padding-bottom: 44px;
+    }
+
+    .topbar {
+      min-height: 92px;
+      display: grid;
+      grid-template-columns: 130px 1fr 130px;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .back-link,
+    .save-top,
+    .save-bottom {
+      min-height: 50px;
+      border-radius: 17px;
+      font-size: 0.98rem;
+      font-weight: 820;
+      cursor: pointer;
+      transition: transform 180ms var(--ease), box-shadow 180ms ease, background 180ms ease;
+    }
+
+    .back-link {
+      width: max-content;
+      padding: 0 17px 0 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid var(--line);
+      text-decoration: none;
+    }
+
+    .back-link svg {
+      width: 21px;
+      height: 21px;
+    }
+
+    .topbar-title {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.05rem;
+      font-weight: 850;
+      letter-spacing: -0.03em;
+    }
+
+    .topbar-mark {
+      width: 28px;
+      height: 28px;
+      position: relative;
+    }
+
+    .topbar-mark::before,
+    .topbar-mark::after {
+      content: "";
+      position: absolute;
+      border-radius: 99px;
+    }
+
+    .topbar-mark::before {
+      width: 12px;
+      height: 22px;
+      left: 4px;
+      top: 0;
+      background: var(--coral);
+      transform: rotate(-26deg);
+    }
+
+    .topbar-mark::after {
+      width: 22px;
+      height: 8px;
+      left: 1px;
+      bottom: 0;
+      background: var(--blue);
+      transform: rotate(7deg);
+    }
+
+    .save-top {
+      min-width: 96px;
+      grid-column: 3;
+      justify-self: end;
+      color: #fff;
+      background: var(--text);
+      border: 0;
+    }
+
+    .back-link:hover,
+    .save-top:hover,
+    .save-bottom:hover {
+      transform: translateY(-2px);
+    }
+
+    .save-top:hover,
+    .save-bottom:hover {
+      background: #0d0d0c;
+      box-shadow: 0 12px 26px rgba(37, 36, 34, 0.18);
+    }
+
+    .back-link:focus-visible,
+    .save-top:focus-visible,
+    .save-bottom:focus-visible,
+    .mode-tab:focus-visible,
+    .field-control:focus-visible,
+    .affect-option input:focus-visible + .choice-circle {
+      outline: 4px solid rgba(157, 130, 198, 0.38);
+      outline-offset: 3px;
+    }
+
+    main {
+      padding: clamp(42px, 6vw, 76px) 4% 0;
+    }
+
+    .page-heading {
+      max-width: 760px;
+      margin: 0 auto 28px;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2.65rem, 5vw, 4.6rem);
+      line-height: 1;
+      letter-spacing: -0.06em;
+    }
+
+    .page-heading p {
+      margin: 16px auto 0;
+      color: var(--muted);
+      font-size: 1.08rem;
+      line-height: 1.5;
+    }
+
+    .spot-card {
+      width: min(760px, 100%);
+      margin: 0 auto;
+      padding: clamp(18px, 3vw, 30px);
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 32px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(15px);
+    }
+
+    .mode-tabs {
+      padding: 5px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 5px;
+      background: #f0e8df;
+      border-radius: 19px;
+    }
+
+    .mode-tab {
+      min-height: 47px;
+      padding: 8px 10px;
+      color: var(--muted);
+      background: transparent;
+      border: 0;
+      border-radius: 15px;
+      font-size: 0.98rem;
+      font-weight: 760;
+      cursor: pointer;
+      transition: color 180ms ease, background 180ms ease, box-shadow 180ms ease, transform 180ms var(--ease);
+    }
+
+    .mode-tab:hover:not(.is-active) {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.5);
+    }
+
+    .mode-tab.is-active {
+      color: #fff;
+      background: var(--coral);
+      box-shadow: 0 7px 18px rgba(238, 111, 81, 0.24);
+    }
+
+    .mode-panel {
+      padding: 32px 4px 4px;
+      animation: panel-enter 280ms var(--ease) both;
+    }
+
+    .form-field + .form-field,
+    .affects-section,
+    .mistakes-section {
+      margin-top: 28px;
+    }
+
+    .field-label,
+    .section-title {
+      display: block;
+      margin: 0 0 11px;
+      font-size: 1.08rem;
+      font-weight: 820;
+      letter-spacing: -0.025em;
+    }
+
+    .field-control {
+      width: 100%;
+      border: 1.5px solid #ded2c6;
+      border-radius: 17px;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.9);
+      transition: border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
+    }
+
+    input.field-control {
+      min-height: 56px;
+      padding: 0 17px;
+    }
+
+    textarea.field-control {
+      min-height: 125px;
+      padding: 15px 17px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    .field-control::placeholder {
+      color: #9d968f;
+    }
+
+    .field-control:focus {
+      border-color: var(--coral);
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(238, 111, 81, 0.1);
+      outline: 0;
+    }
+
+    .affect-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: 18px;
+      row-gap: 10px;
+    }
+
+    .affect-option {
+      min-height: 48px;
+      padding: 0 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border: 1px solid transparent;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: background 180ms ease, border-color 180ms ease;
+    }
+
+    .affect-option:hover {
+      background: #fff8f1;
+      border-color: var(--line);
+    }
+
+    .affect-option input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .choice-circle {
+      width: 24px;
+      height: 24px;
+      flex: none;
+      position: relative;
+      border: 2px solid #aaa198;
+      border-radius: 50%;
+      transition: border-color 180ms ease, background 180ms ease, transform 180ms var(--ease);
+    }
+
+    .affect-option input:checked + .choice-circle {
+      border-color: var(--coral);
+      background: var(--coral);
+      transform: scale(1.04);
+    }
+
+    .affect-option input:checked + .choice-circle::after {
+      content: "";
+      width: 8px;
+      height: 4px;
+      position: absolute;
+      left: 6px;
+      top: 6px;
+      border-left: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      transform: rotate(-45deg);
+    }
+
+    .save-bottom {
+      width: 100%;
+      margin-top: 28px;
+      color: #fff;
+      background: var(--text);
+      border: 0;
+    }
+
+    .sex-empty {
+      min-height: 430px;
+    }
+
+    .save-confirmation {
+      min-width: 210px;
+      padding: 13px 18px;
+      position: fixed;
+      left: 50%;
+      bottom: 28px;
+      z-index: 10;
+      color: #fff;
+      background: var(--text);
+      border-radius: 16px;
+      box-shadow: 0 16px 34px rgba(37, 36, 34, 0.2);
+      text-align: center;
+      font-weight: 760;
+      transform: translate(-50%, 24px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 220ms ease, transform 220ms var(--ease);
+    }
+
+    .save-confirmation.is-visible {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    @keyframes panel-enter {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 640px) {
+      .app-shell {
+        width: min(100% - 22px, 1120px);
+        padding-bottom: 24px;
+      }
+
+      .topbar {
+        min-height: 76px;
+        grid-template-columns: 54px 1fr 72px;
+      }
+
+      .back-link {
+        width: 48px;
+        min-height: 48px;
+        padding: 0;
+        justify-content: center;
+        border-radius: 50%;
+      }
+
+      .back-link span,
+      .topbar-title span:last-child {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+      }
+
+      .save-top {
+        min-width: 70px;
+        min-height: 46px;
+        border-radius: 16px;
+      }
+
+      main {
+        padding: 30px 0 0;
+      }
+
+      .page-heading {
+        margin-bottom: 22px;
+        text-align: left;
+      }
+
+      h1 {
+        font-size: clamp(2.5rem, 12vw, 3.4rem);
+      }
+
+      .page-heading p {
+        margin-top: 11px;
+        font-size: 0.98rem;
+      }
+
+      .spot-card {
+        padding: 14px;
+        border-radius: 25px;
+      }
+
+      .mode-tabs {
+        gap: 3px;
+        padding: 4px;
+        border-radius: 17px;
+      }
+
+      .mode-tab {
+        min-height: 42px;
+        padding-inline: 4px;
+        border-radius: 13px;
+        font-size: 0.82rem;
+      }
+
+      .mode-panel {
+        padding: 25px 2px 2px;
+      }
+
+      .form-field + .form-field,
+      .affects-section,
+      .mistakes-section {
+        margin-top: 24px;
+      }
+
+      .affect-list {
+        grid-template-columns: 1fr;
+        gap: 5px;
+      }
+
+      .affect-option {
+        min-height: 44px;
+        padding-inline: 8px;
+      }
+
+      .sex-empty {
+        min-height: 390px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="back-link" href="index.html" aria-label="Back to Daily Reflection home">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="m15 18-6-6 6-6" />
+        </svg>
+        <span>Home</span>
+      </a>
+      <button class="save-top" type="button" data-save>Save</button>
+    </header>
+
+    <main>
+      <div class="page-heading">
+        <h1>Add Spotcheck</h1>
+      </div>
+
+      <section class="spot-card" aria-labelledby="spotModesLabel">
+        <h2 id="spotModesLabel" hidden>Spot Check type</h2>
+        <div id="modeTabs" class="mode-tabs" role="tablist" aria-label="Spot Check type"></div>
+        <div id="modePanel"></div>
+      </section>
+    </main>
+  </div>
+
+  <div id="saveConfirmation" class="save-confirmation" role="status" aria-live="polite">Spot Check saved</div>
+
+  <script>
+    const affects = ["Fear", "Self-esteem", "Security", "Personal relationship", "Sex relations", "Pride"];
+
+    const spotCheckModes = [
+      {
+        id: "resentment",
+        name: "Resentment",
+        fields: [
+          { id: "subject", label: "I'm resentful at:", type: "input", placeholder: "Name or situation" },
+          { id: "reason", label: "The cause is:", type: "textarea", placeholder: "Describe what happened..." }
+        ]
+      },
+      {
+        id: "fear",
+        name: "Fear",
+        fields: [
+          { id: "subject", label: "I'm fearful of:", type: "input", placeholder: "Name the fear" },
+          { id: "reason", label: "Why do I have the fear?:", type: "textarea", placeholder: "Describe what is behind this fear..." }
+        ]
+      },
+      {
+        id: "harm",
+        name: "Harm",
+        fields: [
+          { id: "subject", label: "Who did I harm?:", type: "input", placeholder: "Name or situation" },
+          { id: "reason", label: "What did I do?:", type: "textarea", placeholder: "Describe what happened..." }
+        ]
+      },
+      {
+        id: "sex",
+        name: "Sex",
+        fields: [
+          { id: "subject", label: "Who did I harm?:", type: "input", placeholder: "Name or situation" },
+          { id: "reason", label: "What did I do?:", type: "textarea", placeholder: "Describe what happened..." }
+        ]
+      }
+    ];
+
+    const createModeState = () => ({ subject: "", reason: "", affects: [], mistakes: "" });
+    const savedDraft = JSON.parse(localStorage.getItem("spotCheckDraft") || "null");
+    const responses = Object.fromEntries(
+      spotCheckModes.map((mode) => [mode.id, savedDraft?.responses?.[mode.id] || createModeState()])
+    );
+
+    let activeModeId = savedDraft?.activeModeId || "resentment";
+    let confirmationTimer;
+
+    const modeTabs = document.getElementById("modeTabs");
+    const modePanel = document.getElementById("modePanel");
+    const saveConfirmation = document.getElementById("saveConfirmation");
+
+    const createField = (field, modeState) => {
+      const wrapper = document.createElement("div");
+      const label = document.createElement("label");
+      const control = document.createElement(field.type === "textarea" ? "textarea" : "input");
+
+      wrapper.className = "form-field";
+      label.className = "field-label";
+      label.htmlFor = `${activeModeId}-${field.id}`;
+      label.textContent = field.label;
+      control.className = "field-control";
+      control.id = `${activeModeId}-${field.id}`;
+      control.name = field.id;
+      control.placeholder = field.placeholder;
+      control.value = modeState[field.id] || "";
+      if (field.type === "textarea") control.rows = 4;
+      control.addEventListener("input", () => { modeState[field.id] = control.value; });
+
+      wrapper.append(label, control);
+      return wrapper;
+    };
+
+    const createAffectsSection = (modeState) => {
+      const section = document.createElement("section");
+      const title = document.createElement("h2");
+      const list = document.createElement("div");
+
+      section.className = "affects-section";
+      title.className = "section-title";
+      title.textContent = "Affects My:";
+      list.className = "affect-list";
+
+      affects.forEach((affect) => {
+        const option = document.createElement("label");
+        const text = document.createElement("span");
+        const checkbox = document.createElement("input");
+        const circle = document.createElement("span");
+
+        option.className = "affect-option";
+        text.textContent = affect;
+        checkbox.type = "checkbox";
+        checkbox.value = affect;
+        checkbox.checked = modeState.affects.includes(affect);
+        checkbox.addEventListener("change", () => {
+          modeState.affects = checkbox.checked
+            ? [...new Set([...modeState.affects, affect])]
+            : modeState.affects.filter((item) => item !== affect);
+        });
+        circle.className = "choice-circle";
+        circle.setAttribute("aria-hidden", "true");
+        option.append(text, checkbox, circle);
+        list.appendChild(option);
+      });
+
+      section.append(title, list);
+      return section;
+    };
+
+    const createMistakesSection = (modeState) => {
+      const section = document.createElement("section");
+      const label = document.createElement("label");
+      const textarea = document.createElement("textarea");
+
+      section.className = "mistakes-section";
+      label.className = "section-title";
+      label.htmlFor = `${activeModeId}-mistakes`;
+      label.textContent = "My Mistakes:";
+      textarea.className = "field-control";
+      textarea.id = `${activeModeId}-mistakes`;
+      textarea.rows = 4;
+      textarea.placeholder = "Where have I been selfish, dishonest, or afraid?";
+      textarea.value = modeState.mistakes;
+      textarea.addEventListener("input", () => { modeState.mistakes = textarea.value; });
+      section.append(label, textarea);
+      return section;
+    };
+
+    const createSaveButton = () => {
+      const button = document.createElement("button");
+      button.className = "save-bottom";
+      button.type = "button";
+      button.dataset.save = "";
+      button.textContent = "Save Spot Check";
+      button.addEventListener("click", saveDraft);
+      return button;
+    };
+
+    const renderPanel = () => {
+      const mode = spotCheckModes.find((item) => item.id === activeModeId);
+      const modeState = responses[activeModeId];
+      const panel = document.createElement("div");
+      panel.className = `mode-panel${mode.fields.length ? "" : " sex-empty"}`;
+      panel.id = `${mode.id}-panel`;
+      panel.role = "tabpanel";
+      panel.setAttribute("aria-labelledby", `${mode.id}-tab`);
+
+      if (mode.fields.length) {
+        mode.fields.forEach((field) => panel.appendChild(createField(field, modeState)));
+        panel.append(createAffectsSection(modeState), createMistakesSection(modeState), createSaveButton());
+      }
+
+      modePanel.replaceChildren(panel);
+    };
+
+    const setActiveMode = (modeId) => {
+      activeModeId = modeId;
+      [...modeTabs.children].forEach((tab) => {
+        const isActive = tab.dataset.mode === modeId;
+        tab.classList.toggle("is-active", isActive);
+        tab.setAttribute("aria-selected", String(isActive));
+        tab.tabIndex = isActive ? 0 : -1;
+      });
+      renderPanel();
+    };
+
+    const renderTabs = () => {
+      spotCheckModes.forEach((mode) => {
+        const tab = document.createElement("button");
+        tab.className = "mode-tab";
+        tab.id = `${mode.id}-tab`;
+        tab.type = "button";
+        tab.role = "tab";
+        tab.dataset.mode = mode.id;
+        tab.setAttribute("aria-controls", `${mode.id}-panel`);
+        tab.textContent = mode.name;
+        tab.addEventListener("click", () => setActiveMode(mode.id));
+        modeTabs.appendChild(tab);
+      });
+    };
+
+    function saveDraft() {
+      localStorage.setItem("spotCheckDraft", JSON.stringify({ activeModeId, responses }));
+      saveConfirmation.classList.add("is-visible");
+      clearTimeout(confirmationTimer);
+      confirmationTimer = setTimeout(() => saveConfirmation.classList.remove("is-visible"), 1800);
+    }
+
+    document.querySelector(".save-top").addEventListener("click", saveDraft);
+    renderTabs();
+    setActiveMode(activeModeId);
+  </script>
+</body>
+</html>

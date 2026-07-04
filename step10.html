@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fff8ef">
+  <title>Daily Check-in</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --canvas: #fff8ef;
+      --paper: #fffdf9;
+      --text: #252422;
+      --muted: #6f6a64;
+      --line: #eadfd2;
+      --coral: #ff6547;
+      --coral-dark: #e84e34;
+      --sun: #ffb21a;
+      --peach: #fbe8cf;
+      --lavender: #b8a0d8;
+      --sky: #8dbce8;
+      --focus: #814fcb;
+      --radius: 30px;
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+      margin: 0;
+    }
+
+    body {
+      min-height: 100svh;
+      padding: 1rem 0;
+      overflow-x: hidden;
+      background: var(--canvas);
+      color: var(--text);
+      font-family: "Arial Rounded MT Bold", "Nunito", ui-rounded, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body::before {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      content: "";
+      background: var(--canvas);
+      pointer-events: none;
+    }
+
+    button,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .app-shell {
+      width: min(calc(100% - 2rem), 1440px);
+      min-height: calc(100svh - 2rem);
+      margin: 0 auto;
+      padding: 0 clamp(1rem, 2.4vw, 2.25rem) clamp(1.25rem, 2.4vw, 2.25rem);
+      display: grid;
+      grid-template-rows: auto 1fr;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background: rgba(255, 253, 249, 0.78);
+      box-shadow: 0 18px 55px rgba(99, 70, 42, 0.1);
+    }
+
+    .app-header {
+      position: relative;
+      z-index: 2;
+    }
+
+    .header-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+      align-items: center;
+      gap: 1.25rem;
+      min-height: 104px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand {
+      margin: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.8rem;
+      font-size: clamp(1.15rem, 2vw, 1.75rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+    }
+
+    .brand-mark {
+      position: relative;
+      width: 45px;
+      height: 45px;
+      flex: 0 0 auto;
+    }
+
+    .brand-mark span {
+      position: absolute;
+      left: 50%;
+      display: block;
+      transform: translateX(-50%);
+      border-radius: 999px;
+    }
+
+    .brand-mark .sun {
+      top: 1px;
+      width: 15px;
+      height: 15px;
+      background: var(--sun);
+    }
+
+    .brand-mark .coral {
+      top: 18px;
+      width: 34px;
+      height: 12px;
+      background: var(--coral);
+      transform: translateX(-50%) rotate(-7deg);
+    }
+
+    .brand-mark .sky {
+      top: 31px;
+      width: 32px;
+      height: 10px;
+      background: var(--sky);
+      transform: translateX(-50%) rotate(5deg);
+    }
+
+    .remaining-count {
+      color: var(--muted);
+      font-size: 0.98rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      text-align: center;
+    }
+
+    .sound-toggle {
+      width: 44px;
+      height: 44px;
+      justify-self: end;
+      display: grid;
+      place-items: center;
+      border: 1px solid #f4d7bb;
+      border-radius: 50%;
+      background: #fff0df;
+      color: var(--text);
+      cursor: pointer;
+      transition: color 180ms ease, border-color 180ms ease, background 180ms ease;
+    }
+
+    .sound-toggle:hover {
+      color: var(--coral-dark);
+      border-color: #efbea0;
+      background: #ffe6ce;
+    }
+
+    .sound-toggle:focus-visible,
+    .answer-button:focus-visible,
+    .finish-button:focus-visible,
+    .reflection-input:focus-visible {
+      outline: 3px solid rgba(129, 79, 203, 0.45);
+      outline-offset: 4px;
+    }
+
+    .sound-toggle svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .sound-toggle .sound-off,
+    .sound-toggle.is-muted .sound-on {
+      display: none;
+    }
+
+    .sound-toggle.is-muted .sound-off {
+      display: block;
+    }
+
+    .progress-track {
+      height: 12px;
+      margin: 1.2rem auto 0;
+      overflow: hidden;
+      border-radius: 999px;
+      background: transparent;
+    }
+
+    .progress-value {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      grid-template-columns: repeat(var(--question-count, 1), minmax(0, 1fr));
+      gap: clamp(3px, 0.6vw, 9px);
+    }
+
+    .progress-value span {
+      border-radius: 999px;
+      background: #f5dfc6;
+      transition: background 420ms ease, transform 420ms var(--ease);
+    }
+
+    .progress-value span.is-active {
+      background: var(--coral);
+      transform: scaleY(1.08);
+    }
+
+    .stage {
+      min-height: 0;
+      display: grid;
+      place-items: center;
+      padding: clamp(1.6rem, 4vh, 3.5rem) 0 clamp(1.5rem, 3vh, 2.5rem);
+    }
+
+    #questionMount {
+      width: min(100%, 1180px);
+    }
+
+    .question-view,
+    .completion-view,
+    .thank-you-view {
+      width: min(100%, 1180px);
+    }
+
+    .question-view {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(240px, 0.72fr) minmax(0, 1.35fr);
+      grid-template-rows: minmax(0, 1fr) auto;
+      align-items: center;
+      column-gap: clamp(1.75rem, 5vw, 5rem);
+      row-gap: 1rem;
+      min-height: 520px;
+      padding: clamp(1.5rem, 3.4vw, 3.4rem);
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 34px;
+      background: var(--paper);
+      box-shadow: 0 14px 45px rgba(100, 68, 34, 0.09);
+      animation: question-enter 360ms var(--ease) both;
+    }
+
+    .question-view.is-leaving {
+      pointer-events: none;
+      animation: question-leave 300ms cubic-bezier(0.55, 0, 1, 0.45) both;
+    }
+
+    .question-view.from-back {
+      animation-name: question-enter-back;
+    }
+
+    .question-view.is-going-back {
+      pointer-events: none;
+      animation: question-leave-back 300ms cubic-bezier(0.55, 0, 1, 0.45) both;
+    }
+
+    .question-number {
+      margin-bottom: 1rem;
+      color: var(--coral);
+      font-size: 0.98rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+    }
+
+    .question-illustration {
+      position: relative;
+      display: grid;
+      place-items: center;
+      min-width: 0;
+    }
+
+    .question-illustration::after {
+      position: absolute;
+      right: 4%;
+      bottom: 3%;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--lavender);
+      content: "";
+      opacity: 0.55;
+      animation: float-dot 3.8s ease-in-out infinite;
+    }
+
+    .question-illustration img {
+      width: min(100%, 360px);
+      max-height: 410px;
+      object-fit: contain;
+      filter: drop-shadow(0 18px 24px rgba(105, 69, 36, 0.09));
+    }
+
+    .question-content {
+      min-width: 0;
+    }
+
+    .question-text {
+      max-width: 880px;
+      margin: 0 0 clamp(1.7rem, 4vh, 2.6rem);
+      font-size: clamp(1.7rem, 2.75vw, 3rem);
+      font-weight: 800;
+      line-height: 1.14;
+      letter-spacing: -0.045em;
+      text-wrap: balance;
+    }
+
+    .answer-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1.25rem;
+    }
+
+    .answer-button {
+      min-height: 74px;
+      padding: 1rem 1.5rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.85rem;
+      border: 1px solid transparent;
+      border-radius: 24px;
+      font-size: 1.35rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition:
+        transform 220ms var(--ease),
+        background 220ms ease,
+        box-shadow 220ms ease,
+        opacity 220ms ease;
+    }
+
+    .answer-button.yes {
+      color: #fff;
+      background: var(--coral);
+      box-shadow: 0 12px 22px rgba(255, 101, 71, 0.22);
+    }
+
+    .answer-button.no {
+      color: var(--text);
+      background: var(--peach);
+    }
+
+    .answer-button:hover:not(:disabled) {
+      transform: translateY(-3px);
+    }
+
+    .answer-button.yes:hover:not(:disabled),
+    .answer-button.yes.is-selected {
+      background: var(--coral-dark);
+      box-shadow: 0 15px 28px rgba(232, 78, 52, 0.28);
+    }
+
+    .answer-button.no:hover:not(:disabled),
+    .answer-button.no.is-selected {
+      background: #f7dcb9;
+      box-shadow: 0 12px 24px rgba(145, 97, 47, 0.14);
+    }
+
+    .answer-button.is-selected {
+      transform: scale(1.025);
+    }
+
+    .answer-button.is-unselected {
+      opacity: 0.24;
+      transform: scale(0.98);
+    }
+
+    .reflection-input {
+      width: 100%;
+      min-height: 106px;
+      margin-top: 1.25rem;
+      padding: 1rem 1.15rem;
+      resize: vertical;
+      border: 1px solid #e3d5c7;
+      border-radius: 20px;
+      background: #fffdfa;
+      color: var(--text);
+      font-size: 1rem;
+      line-height: 1.55;
+      transition: border-color 180ms ease, background 180ms ease;
+    }
+
+    .reflection-input::placeholder {
+      color: #9b948c;
+    }
+
+    .reflection-input:focus {
+      border-color: var(--coral);
+      background: #fff;
+    }
+
+    .question-navigation {
+      grid-column: 1 / -1;
+      width: 100%;
+      padding-top: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      border-top: 1px solid var(--line);
+    }
+
+    .back-button,
+    .next-button,
+    .completion-back-button {
+      min-width: 150px;
+      min-height: 54px;
+      padding: 0.8rem 1.25rem;
+      border: 1px solid transparent;
+      border-radius: 18px;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 180ms var(--ease), background 180ms ease, box-shadow 180ms ease;
+    }
+
+    .back-button,
+    .completion-back-button {
+      border-color: #dfd2c5;
+      background: #fff;
+      color: var(--text);
+    }
+
+    .next-button {
+      background: var(--text);
+      color: #fff;
+    }
+
+    .back-button:hover:not(:disabled),
+    .next-button:hover:not(:disabled),
+    .completion-back-button:hover {
+      transform: translateY(-2px);
+    }
+
+    .next-button:hover:not(:disabled) {
+      background: #090909;
+      box-shadow: 0 10px 22px rgba(37, 36, 34, 0.16);
+    }
+
+    .back-button:hover:not(:disabled),
+    .completion-back-button:hover {
+      background: #fff8ef;
+    }
+
+    .back-button:disabled,
+    .next-button:disabled {
+      cursor: not-allowed;
+      opacity: 0.34;
+    }
+
+    .back-button:focus-visible,
+    .next-button:focus-visible,
+    .completion-back-button:focus-visible {
+      outline: 3px solid rgba(129, 79, 203, 0.45);
+      outline-offset: 4px;
+    }
+
+    .completion-actions {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .completion-view,
+    .thank-you-view {
+      max-width: 760px;
+      padding: clamp(2.25rem, 5vw, 4.5rem);
+      border: 1px solid #dcd2e8;
+      border-radius: 34px;
+      background: #fbf8ff;
+      text-align: center;
+      box-shadow: 0 16px 45px rgba(95, 70, 128, 0.1);
+      animation: question-enter 720ms var(--ease) both;
+    }
+
+    .completion-illustration {
+      width: min(100%, 190px);
+      max-height: 170px;
+      margin: 0 auto 1.15rem;
+      object-fit: contain;
+    }
+
+    .completion-view h1,
+    .thank-you-view h1 {
+      margin: 0 0 0.85rem;
+      font-size: clamp(2.2rem, 5vw, 3.7rem);
+      font-weight: 800;
+      letter-spacing: -0.045em;
+    }
+
+    .completion-view p,
+    .thank-you-view p {
+      margin: 0 auto 2rem;
+      color: var(--muted);
+      font-size: 1.05rem;
+      line-height: 1.6;
+    }
+
+    .finish-button {
+      min-width: 210px;
+      min-height: 58px;
+      padding: 0.85rem 1.5rem;
+      border: 1px solid transparent;
+      border-radius: 20px;
+      background: var(--coral);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 650;
+      cursor: pointer;
+      transition: transform 180ms var(--ease), background 180ms ease, box-shadow 180ms ease;
+    }
+
+    .finish-button:hover {
+      transform: translateY(-2px);
+      background: var(--coral-dark);
+      box-shadow: 0 12px 30px rgba(232, 78, 52, 0.22);
+    }
+
+    .visually-hidden {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0, 0, 0, 0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    @keyframes question-enter {
+      from {
+        opacity: 0;
+        transform: translateX(34px) translateY(10px) scale(0.985);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes question-leave {
+      to {
+        opacity: 0;
+        transform: translateX(-48px) rotate(-0.7deg) scale(0.985);
+      }
+    }
+
+    @keyframes question-enter-back {
+      from {
+        opacity: 0;
+        transform: translateX(-34px) translateY(10px) scale(0.985);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0) translateY(0) scale(1);
+      }
+    }
+
+    @keyframes question-leave-back {
+      to {
+        opacity: 0;
+        transform: translateX(48px) rotate(0.7deg) scale(0.985);
+      }
+    }
+
+    @keyframes float-dot {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-9px); }
+    }
+
+    @media (max-width: 700px) {
+      body {
+        padding: 0;
+      }
+
+      .app-shell {
+        width: 100%;
+        min-height: 100svh;
+        margin: 0;
+        padding: 0 1rem 1.25rem;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+      }
+
+      .header-row {
+        grid-template-columns: 1fr auto;
+        gap: 0.65rem 1rem;
+        min-height: 78px;
+      }
+
+      .remaining-count {
+        grid-column: 1 / -1;
+        grid-row: 2;
+      }
+
+      .sound-toggle {
+        grid-column: 2;
+        grid-row: 1;
+      }
+
+      .progress-track {
+        margin-top: 0.85rem;
+      }
+
+      .stage {
+        align-items: start;
+        padding-top: 1.4rem;
+      }
+
+      .brand-mark {
+        width: 36px;
+        height: 38px;
+      }
+
+      .brand-mark .coral {
+        width: 28px;
+      }
+
+      .brand-mark .sky {
+        width: 27px;
+      }
+
+      .question-view {
+        grid-template-columns: 1fr;
+        min-height: 0;
+        padding: 1.6rem 1rem 1.15rem;
+        border-radius: 26px;
+      }
+
+      .question-illustration {
+        display: none;
+      }
+
+      .question-text {
+        font-size: clamp(1.45rem, 6.5vw, 2rem);
+        line-height: 1.18;
+        text-align: center;
+      }
+
+      .question-number {
+        text-align: center;
+      }
+
+      .answer-actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.65rem;
+      }
+
+      .answer-button {
+        min-height: 62px;
+        min-width: 0;
+        padding-inline: 0.55rem;
+        font-size: 1rem;
+        border-radius: 19px;
+      }
+
+      .reflection-input {
+        min-height: 98px;
+        margin-top: 1rem;
+      }
+
+      .question-navigation {
+        padding-top: 0.85rem;
+      }
+
+      .back-button,
+      .next-button {
+        min-width: 0;
+        width: 50%;
+      }
+    }
+
+    @media (max-height: 760px) and (min-width: 701px) {
+      .stage {
+        padding-block: 1rem;
+      }
+
+      .question-view {
+        min-height: 465px;
+        padding-block: 1.6rem;
+      }
+
+      .question-illustration img {
+        max-height: 340px;
+      }
+
+      .question-number {
+        margin-bottom: 1rem;
+      }
+
+      .question-text {
+        margin-bottom: 2rem;
+        font-size: clamp(1.65rem, 2.5vw, 2.45rem);
+      }
+
+      .answer-button {
+        min-height: 64px;
+      }
+
+      .reflection-input {
+        min-height: 82px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="header-row">
+        <p class="brand">
+          <span class="brand-mark" aria-hidden="true">
+            <span class="sun"></span>
+            <span class="coral"></span>
+            <span class="sky"></span>
+          </span>
+          <span>Daily Spiritual Check-In</span>
+        </p>
+        <div id="remainingCount" class="remaining-count" aria-live="polite">Loading questions...</div>
+        <button id="soundToggle" class="sound-toggle" type="button" aria-label="Mute answer sounds" aria-pressed="false">
+          <svg class="sound-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M11 5 6 9H3v6h3l5 4V5Z"></path>
+            <path d="M15.5 8.5a5 5 0 0 1 0 7"></path>
+            <path d="M18 6a8.5 8.5 0 0 1 0 12"></path>
+          </svg>
+          <svg class="sound-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M11 5 6 9H3v6h3l5 4V5Z"></path>
+            <path d="m16 9 5 5"></path>
+            <path d="m21 9-5 5"></path>
+          </svg>
+        </button>
+      </div>
+      <div id="progressTrack" class="progress-track" role="progressbar" aria-label="Check-in progress" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0">
+        <div id="progressValue" class="progress-value" aria-hidden="true"></div>
+      </div>
+    </header>
+
+    <main id="stage" class="stage">
+      <div id="questionMount"></div>
+
+      <section id="completion" class="completion-view" hidden>
+        <img class="completion-illustration" src="assets/reflection-companion.png" alt="">
+        <h1>Reflection complete</h1>
+        <p>Thank you for your honesty and willingness to grow.</p>
+        <div class="completion-actions">
+          <button id="completionBack" class="completion-back-button" type="button">Back</button>
+          <button id="submitBtn" class="finish-button" type="button">Finish check-in</button>
+        </div>
+      </section>
+
+      <section id="thankYou" class="thank-you-view" hidden>
+        <h1>Thank you</h1>
+        <p>Your check-in is complete. You will be redirected shortly...</p>
+      </section>
+    </main>
+  </div>
+
+  <div id="answerStatus" class="visually-hidden" role="status" aria-live="polite"></div>
+
+  <script>
+    const questions = [
+      {
+        text: "When we retire at night, we constructively review our day. Were we resentful?",
+        yesLabel: "Yes",
+        noLabel: "No",
+        enableTextarea: true,
+        enableTextHint: true,
+        textHint: "Describe if needed..."
+      },
+      {
+        text: "Were we selfish?",
+        yesLabel: "Yes",
+        noLabel: "No",
+        enableTextarea: true,
+        enableTextHint: true,
+        textHint: "Describe if needed..."
+      },
+      {
+        text: "Were we dishonest?",
+        yesLabel: "Yes",
+        noLabel: "No",
+        enableTextarea: true,
+        enableTextHint: true,
+        textHint: "Describe if needed..."
+      },
+      {
+        text: "Were we afraid?",
+        yesLabel: "Yes",
+        noLabel: "No",
+        enableTextarea: true,
+        enableTextHint: true,
+        textHint: "Describe if needed..."
+      },
+      {
+        text: "Do we owe an apology?",
+        yesLabel: "Yes",
+        noLabel: "No",
+        enableTextarea: true,
+        enableTextHint: true,
+        textHint: "Who do you need to apologize to?"
+      },
+      {
+        text: "Have we kept something to ourselves which should be discussed with another person at once?",
+        yesLabel: "Yes",
+        noLabel: "No",
+        enableTextarea: true,
+        enableTextHint: true,
+        textHint: "Describe if needed..."
+      },
+      {
+        text: "Were we kind and loving toward all?",
+        yesLabel: "Yes",
+        noLabel: "No",
+        enableTextarea: true,
+        enableTextHint: false,
+        textHint: ""
+      },
+      {
+        text: "What could we have done better?",
+        yesLabel: "I reflected on this",
+        noLabel: "Not yet",
+        enableTextarea: true,
+        enableTextHint: true,
+        textHint: "Write your reflection..."
+      },
+      {
+        text: "were we thinking of ourselves most of the time ?",
+        yesLabel: "Yes",
+        noLabel: "No",
+        enableTextarea: true,
+        enableTextHint: true,
+        textHint: "Describe if needed..."
+      },
+      {
+        text: "Or were we thinking of what we could do for others, of what we could pack into the stream of life?",
+        yesLabel: "Yes",
+        noLabel: "No",
+        enableTextarea: true,
+        enableTextHint: true,
+        textHint: "Describe your experience today..."
+      }
+
+      
+    ];
+
+    const questionMount = document.getElementById("questionMount");
+    const remainingCount = document.getElementById("remainingCount");
+    const progressTrack = document.getElementById("progressTrack");
+    const progressValue = document.getElementById("progressValue");
+    const completion = document.getElementById("completion");
+    const thankYou = document.getElementById("thankYou");
+    const answerStatus = document.getElementById("answerStatus");
+    const soundToggle = document.getElementById("soundToggle");
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    const questionCount = questions.length;
+    progressTrack.setAttribute("aria-valuemax", String(questionCount));
+    progressValue.style.setProperty("--question-count", String(questionCount));
+    progressValue.replaceChildren(
+      ...Array.from({ length: questionCount }, () => document.createElement("span"))
+    );
+
+    let currentQuestion = 0;
+    let isTransitioning = false;
+    let selectedAnswer = null;
+    let soundEnabled = true;
+    let audioContext;
+    const responses = [];
+
+    const escapeHTML = (value) => String(value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+
+    const wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
+
+    const updateProgress = () => {
+      const remaining = Math.max(questions.length - currentQuestion, 0);
+      const completed = Math.min(currentQuestion, questions.length);
+      const visibleProgress = currentQuestion < questions.length ? currentQuestion + 1 : questions.length;
+      remainingCount.textContent = `${remaining} ${remaining === 1 ? "question" : "questions"} remaining`;
+      progressTrack.setAttribute("aria-valuenow", String(completed));
+      [...progressValue.children].forEach((segment, index) => {
+        segment.classList.toggle("is-active", index < visibleProgress);
+      });
+    };
+
+    const playAnswerSound = (answer) => {
+      if (!soundEnabled) return;
+
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) return;
+
+      audioContext ??= new AudioContextClass();
+      const now = audioContext.currentTime;
+      const oscillator = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+
+      oscillator.type = "sine";
+      oscillator.frequency.setValueAtTime(answer === "yes" ? 520 : 440, now);
+      oscillator.frequency.exponentialRampToValueAtTime(answer === "yes" ? 660 : 392, now + 0.11);
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.15, now + 0.012);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
+
+      oscillator.connect(gain);
+      gain.connect(audioContext.destination);
+      oscillator.start(now);
+      oscillator.stop(now + 0.17);
+    };
+
+    const renderQuestion = (direction = "forward") => {
+      if (currentQuestion >= questions.length) {
+        questionMount.innerHTML = "";
+        completion.hidden = false;
+        updateProgress();
+        completion.querySelector("button").focus({ preventScroll: true });
+        return;
+      }
+
+      const question = questions[currentQuestion];
+      const number = `${currentQuestion + 1} of ${questions.length}`;
+      const hint = question.enableTextHint !== false ? (question.textHint || "Describe if needed...") : "";
+      const textarea = question.enableTextarea
+        ? `<textarea id="reflectionInput" class="reflection-input" rows="3" placeholder="${escapeHTML(hint)}" aria-label="Optional reflection for question ${currentQuestion + 1}"></textarea>`
+        : "";
+      const savedResponse = responses[currentQuestion] || {};
+
+      selectedAnswer = savedResponse.answer || null;
+
+      questionMount.innerHTML = `
+        <article class="question-view${direction === "back" ? " from-back" : ""}" aria-labelledby="questionText">
+          <div class="question-illustration" aria-hidden="true">
+            <img src="assets/reflection-companion.png" alt="">
+          </div>
+          <div class="question-content">
+            <div class="question-number" aria-hidden="true">${number}</div>
+            <h1 id="questionText" class="question-text">${escapeHTML(question.text)}</h1>
+            <div class="answer-actions">
+              <button class="answer-button yes" type="button" data-answer="yes">
+                <span>${escapeHTML(question.yesLabel || "Yes")}</span>
+              </button>
+              <button class="answer-button no" type="button" data-answer="no">
+                <span>${escapeHTML(question.noLabel || "No")}</span>
+              </button>
+            </div>
+            ${textarea}
+          </div>
+          <nav class="question-navigation" aria-label="Question navigation">
+            <button class="back-button" type="button" ${currentQuestion === 0 ? "disabled" : ""}>Back</button>
+            <button class="next-button" type="button">Next</button>
+          </nav>
+        </article>
+      `;
+
+      questionMount.querySelectorAll("[data-answer]").forEach((button) => {
+        button.addEventListener("click", () => chooseAnswer(button.dataset.answer));
+      });
+      questionMount.querySelector(".next-button").addEventListener("click", nextQuestion);
+      questionMount.querySelector(".back-button").addEventListener("click", previousQuestion);
+
+      const reflectionInput = questionMount.querySelector(".reflection-input");
+      if (reflectionInput && savedResponse.reflection) {
+        reflectionInput.value = savedResponse.reflection;
+      }
+
+      if (selectedAnswer) {
+        const selected = questionMount.querySelector(`[data-answer="${selectedAnswer}"]`);
+        const unselected = questionMount.querySelector(`[data-answer]:not([data-answer="${selectedAnswer}"])`);
+        selected.classList.add("is-selected");
+        unselected.classList.add("is-unselected");
+      }
+
+      updateProgress();
+    };
+
+    const chooseAnswer = (answer) => {
+      if (isTransitioning) return;
+
+      const selected = questionMount.querySelector(`[data-answer="${answer}"]`);
+      const unselected = questionMount.querySelector(`[data-answer]:not([data-answer="${answer}"])`);
+      selectedAnswer = answer;
+      responses[currentQuestion] = {
+        answer,
+        reflection: questionMount.querySelector(".reflection-input")?.value.trim() || ""
+      };
+      playAnswerSound(answer);
+      questionMount.querySelectorAll("[data-answer]").forEach((button) => {
+        button.classList.remove("is-selected", "is-unselected");
+      });
+      selected.classList.add("is-selected");
+      unselected.classList.add("is-unselected");
+      answerStatus.textContent = `${selected.textContent.trim()} selected. You can add a comment or choose Next.`;
+    };
+
+    const saveCurrentResponse = () => {
+      responses[currentQuestion] = {
+        answer: selectedAnswer,
+        reflection: questionMount.querySelector(".reflection-input")?.value.trim() || ""
+      };
+    };
+
+    async function nextQuestion() {
+      if (isTransitioning) return;
+      isTransitioning = true;
+
+      const view = questionMount.querySelector(".question-view");
+      saveCurrentResponse();
+      questionMount.querySelectorAll("button, textarea").forEach((control) => control.disabled = true);
+      answerStatus.textContent = selectedAnswer
+        ? "Moving to the next question."
+        : "Question skipped. Moving to the next question.";
+
+      view.classList.add("is-leaving");
+      await wait(reducedMotion.matches ? 20 : 300);
+
+      currentQuestion += 1;
+      isTransitioning = false;
+      renderQuestion();
+    };
+
+    async function previousQuestion() {
+      if (currentQuestion === 0 || isTransitioning) return;
+      isTransitioning = true;
+
+      saveCurrentResponse();
+      const view = questionMount.querySelector(".question-view");
+      questionMount.querySelectorAll("button, textarea").forEach((control) => control.disabled = true);
+      answerStatus.textContent = "Returning to the previous question.";
+      view.classList.add("is-going-back");
+      await wait(reducedMotion.matches ? 20 : 300);
+
+      currentQuestion -= 1;
+      isTransitioning = false;
+      renderQuestion("back");
+    };
+
+    soundToggle.addEventListener("click", () => {
+      soundEnabled = !soundEnabled;
+      soundToggle.classList.toggle("is-muted", !soundEnabled);
+      soundToggle.setAttribute("aria-pressed", String(!soundEnabled));
+      soundToggle.setAttribute("aria-label", soundEnabled ? "Mute answer sounds" : "Turn on answer sounds");
+    });
+
+    document.getElementById("completionBack").addEventListener("click", () => {
+      completion.hidden = true;
+      currentQuestion = questions.length - 1;
+      renderQuestion("back");
+    });
+
+    document.getElementById("submitBtn").addEventListener("click", () => {
+      playAnswerSound("yes");
+      completion.hidden = true;
+      thankYou.hidden = false;
+
+      setTimeout(() => {
+        window.location.href = "https://www.google.com";
+      }, 5000);
+    });
+
+    renderQuestion();
+  </script>
+</body>
+</html>
