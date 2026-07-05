@@ -342,19 +342,40 @@
       }
 
       main {
-        padding: 36px 0 40px;
+        gap: 4px;
+        padding: 20px 0 36px;
       }
 
       .companion-stage {
-        min-height: 220px;
+        min-height: 142px;
+      }
+
+      .companion-stage::before {
+        width: min(46vw, 180px);
+      }
+
+      .companion-stage::after {
+        width: 26px;
+        right: 15%;
+        bottom: 12%;
+      }
+
+      .companion-stage img {
+        width: min(44%, 170px);
+      }
+
+      .floating-dot {
+        width: 18px;
+        top: 19%;
+        left: 17%;
       }
 
       h1 {
-        font-size: clamp(2.65rem, 13vw, 4rem);
+        font-size: clamp(2.3rem, 11vw, 3rem);
       }
 
       .intro {
-        margin: 18px auto 28px;
+        margin: 14px auto 22px;
         font-size: 1rem;
       }
 
