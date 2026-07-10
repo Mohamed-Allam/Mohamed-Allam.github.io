@@ -199,7 +199,7 @@
       width: 100%;
       height: 100%;
       display: grid;
-      grid-template-columns: repeat(16, minmax(0, 1fr));
+      grid-template-columns: repeat(var(--question-count, 1), minmax(0, 1fr));
       gap: clamp(3px, 0.6vw, 9px);
     }
 
@@ -740,7 +740,7 @@
           </span>
           <span>Daily Spiritual Check-In</span>
         </p>
-        <div id="remainingCount" class="remaining-count" aria-live="polite">16 questions remaining</div>
+        <div id="remainingCount" class="remaining-count" aria-live="polite">Questions loading...</div>
         <button id="soundToggle" class="sound-toggle" type="button" aria-label="Mute answer sounds" aria-pressed="false">
           <svg class="sound-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M11 5 6 9H3v6h3l5 4V5Z"></path>
@@ -754,13 +754,8 @@
           </svg>
         </button>
       </div>
-      <div id="progressTrack" class="progress-track" role="progressbar" aria-label="Check-in progress" aria-valuemin="0" aria-valuemax="16" aria-valuenow="1">
-        <div id="progressValue" class="progress-value" aria-hidden="true">
-          <span></span><span></span><span></span><span></span>
-          <span></span><span></span><span></span><span></span>
-          <span></span><span></span><span></span><span></span>
-          <span></span><span></span><span></span><span></span>
-        </div>
+      <div id="progressTrack" class="progress-track" role="progressbar" aria-label="Check-in progress" aria-valuemin="0" aria-valuenow="0">
+        <div id="progressValue" class="progress-value" aria-hidden="true"></div>
       </div>
     </header>
 
@@ -959,6 +954,13 @@
 
     const wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
 
+    const initializeProgress = () => {
+      remainingCount.textContent = `${questions.length} ${questions.length === 1 ? "question" : "questions"} remaining`;
+      progressTrack.setAttribute("aria-valuemax", String(questions.length));
+      progressValue.style.setProperty("--question-count", questions.length);
+      progressValue.innerHTML = questions.map(() => "<span></span>").join("");
+    };
+
     const updateProgress = () => {
       const remaining = Math.max(questions.length - currentQuestion, 0);
       const completed = Math.min(currentQuestion, questions.length);
@@ -977,21 +979,30 @@
       if (!AudioContextClass) return;
 
       audioContext ??= new AudioContextClass();
+      if (audioContext.state === "suspended") {
+        audioContext.resume();
+      }
+
       const now = audioContext.currentTime;
       const oscillator = audioContext.createOscillator();
       const gain = audioContext.createGain();
+      const sound = {
+        yes: { from: 520, to: 660, duration: 0.16 },
+        no: { from: 440, to: 392, duration: 0.16 },
+        next: { from: 610, to: 760, duration: 0.12 }
+      }[answer] || { from: 500, to: 620, duration: 0.14 };
 
       oscillator.type = "sine";
-      oscillator.frequency.setValueAtTime(answer === "yes" ? 520 : 440, now);
-      oscillator.frequency.exponentialRampToValueAtTime(answer === "yes" ? 660 : 392, now + 0.11);
+      oscillator.frequency.setValueAtTime(sound.from, now);
+      oscillator.frequency.exponentialRampToValueAtTime(sound.to, now + Math.min(0.11, sound.duration - 0.03));
       gain.gain.setValueAtTime(0.0001, now);
       gain.gain.exponentialRampToValueAtTime(0.15, now + 0.012);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + sound.duration);
 
       oscillator.connect(gain);
       gain.connect(audioContext.destination);
       oscillator.start(now);
-      oscillator.stop(now + 0.17);
+      oscillator.stop(now + sound.duration + 0.01);
     };
 
     const renderQuestion = (direction = "forward") => {
@@ -1091,7 +1102,8 @@
 
       const view = questionMount.querySelector(".question-view");
       saveCurrentResponse();
-      questionMount.querySelectorAll("button, textarea").forEach((control) => control.disabled = true);
+      playAnswerSound("next");
+      questionMount.querySelectorAll(".back-button, .answer-button, textarea").forEach((control) => control.disabled = true);
       answerStatus.textContent = selectedAnswer
         ? "Moving to the next question."
         : "Question skipped. Moving to the next question.";
@@ -1143,6 +1155,7 @@
       }, 5000);
     });
 
+    initializeProgress();
     renderQuestion();
   </script>
 </body>
