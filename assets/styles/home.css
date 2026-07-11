@@ -1,0 +1,353 @@
+body {
+  min-height: 100vh;
+  overflow-x: clip;
+  background:
+    radial-gradient(circle at 50% 43%, rgba(246, 183, 60, 0.09), transparent 29rem),
+    var(--background);
+}
+
+.page-shell {
+  width: min(1180px, calc(100% - 32px));
+  min-height: 100vh;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.site-header {
+  min-height: 92px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 1.22rem;
+  font-weight: 850;
+  letter-spacing: -0.035em;
+}
+
+.brand-mark {
+  position: relative;
+  width: 44px;
+  height: 40px;
+  flex: none;
+}
+
+.brand-mark span {
+  position: absolute;
+  display: block;
+  border-radius: 999px;
+}
+
+.brand-mark span:nth-child(1) {
+  width: 15px;
+  height: 25px;
+  top: 0;
+  left: 7px;
+  background: var(--coral);
+  transform: rotate(-28deg);
+}
+
+.brand-mark span:nth-child(2) {
+  width: 17px;
+  height: 17px;
+  top: 4px;
+  right: 3px;
+  background: var(--yellow);
+}
+
+.brand-mark span:nth-child(3) {
+  width: 39px;
+  height: 12px;
+  bottom: 1px;
+  left: 1px;
+  background: var(--blue);
+  transform: rotate(7deg);
+}
+
+main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(290px, 0.82fr);
+  align-items: center;
+  gap: clamp(42px, 7vw, 100px);
+  padding: clamp(48px, 7vh, 78px) 5%;
+}
+
+.welcome-copy {
+  max-width: 630px;
+}
+
+h1 {
+  max-width: 650px;
+  margin: 0;
+  font-size: clamp(3.2rem, 6vw, 5.75rem);
+  line-height: 0.98;
+  letter-spacing: -0.065em;
+  text-wrap: balance;
+}
+
+.intro {
+  max-width: 490px;
+  margin: 24px 0 38px;
+  color: var(--muted);
+  font-size: clamp(1.08rem, 1.7vw, 1.35rem);
+  line-height: 1.55;
+}
+
+.reflection-nav {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.reflection-link {
+  --accent: var(--coral);
+  min-height: 92px;
+  padding: 20px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  overflow: hidden;
+  position: relative;
+  color: var(--text);
+  background: var(--surface);
+  border: 1.5px solid color-mix(in srgb, var(--accent) 48%, white);
+  border-radius: 24px;
+  box-shadow: 0 14px 35px rgba(91, 62, 33, 0.07);
+  text-decoration: none;
+  font-size: 1.04rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  transition: transform 220ms var(--ease), box-shadow 220ms ease, background 220ms ease;
+  animation: link-enter 520ms var(--ease) both;
+  animation-delay: calc(var(--item-index) * 70ms + 160ms);
+}
+
+.reflection-link:nth-child(2) { --accent: var(--yellow); }
+.reflection-link:nth-child(3) { --accent: var(--lavender); }
+.reflection-link:nth-child(4) { --accent: var(--blue); }
+
+.reflection-link::before {
+  content: "";
+  width: 9px;
+  height: 44px;
+  position: absolute;
+  inset: 50% auto auto 0;
+  border-radius: 0 99px 99px 0;
+  background: var(--accent);
+  transform: translateY(-50%);
+  opacity: 0.82;
+}
+
+.reflection-link:hover:not(.is-disabled) {
+  transform: translateY(-4px);
+  background: #fff;
+  box-shadow: 0 19px 44px rgba(91, 62, 33, 0.12);
+}
+
+.reflection-link.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+  box-shadow: none;
+}
+
+.reflection-link:focus-visible {
+  outline: 4px solid color-mix(in srgb, var(--accent) 38%, transparent);
+  outline-offset: 4px;
+}
+
+.link-arrow {
+  width: 34px;
+  height: 34px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, white);
+  transition: transform 220ms var(--ease);
+}
+
+.reflection-link:hover:not(.is-disabled) .link-arrow {
+  transform: translateX(3px);
+}
+
+.link-arrow svg {
+  width: 18px;
+  height: 18px;
+}
+
+.companion-stage {
+  min-height: 460px;
+  display: grid;
+  place-items: center;
+  position: relative;
+  isolation: isolate;
+  animation: stage-enter 700ms var(--ease) 80ms both;
+}
+
+.companion-stage::before {
+  content: "";
+  width: min(30vw, 410px);
+  aspect-ratio: 1;
+  position: absolute;
+  z-index: -1;
+  border-radius: 47% 53% 61% 39% / 40% 45% 55% 60%;
+  background: #fff1dc;
+  transform: rotate(-8deg);
+}
+
+.companion-stage::after {
+  content: "";
+  width: 44px;
+  aspect-ratio: 1;
+  position: absolute;
+  right: 4%;
+  bottom: 19%;
+  z-index: -1;
+  border-radius: 50%;
+  background: #d3c2ea;
+  opacity: 0.9;
+}
+
+.companion-stage img {
+  width: min(100%, 430px);
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 24px 26px rgba(96, 65, 37, 0.12));
+}
+
+.floating-dot {
+  width: 26px;
+  aspect-ratio: 1;
+  position: absolute;
+  top: 22%;
+  left: 7%;
+  border-radius: 50%;
+  background: var(--yellow);
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes link-enter {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes stage-enter {
+  from { opacity: 0; transform: translateX(24px) scale(0.98); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@keyframes float {
+  50% { transform: translateY(-10px); }
+}
+
+@media (max-width: 860px) {
+  .page-shell {
+    min-height: auto;
+  }
+
+  main {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 52px 3% 56px;
+  }
+
+  .welcome-copy {
+    max-width: 680px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .intro {
+    margin-inline: auto;
+  }
+
+  .reflection-nav {
+    text-align: left;
+  }
+
+  .companion-stage {
+    grid-row: 1;
+    min-height: 280px;
+  }
+
+  .companion-stage::before {
+    width: min(64vw, 350px);
+  }
+
+  .companion-stage img {
+    width: min(76%, 340px);
+  }
+}
+
+@media (max-width: 560px) {
+  .page-shell {
+    width: min(100% - 24px, 1180px);
+  }
+
+  .site-header {
+    min-height: 76px;
+  }
+
+  .brand {
+    font-size: 1.08rem;
+  }
+
+  main {
+    gap: 4px;
+    padding: 20px 0 36px;
+  }
+
+  .companion-stage {
+    min-height: 142px;
+  }
+
+  .companion-stage::before {
+    width: min(46vw, 180px);
+  }
+
+  .companion-stage::after {
+    width: 26px;
+    right: 15%;
+    bottom: 12%;
+  }
+
+  .companion-stage img {
+    width: min(44%, 170px);
+  }
+
+  .floating-dot {
+    width: 18px;
+    top: 19%;
+    left: 17%;
+  }
+
+  h1 {
+    font-size: clamp(2.3rem, 11vw, 3rem);
+  }
+
+  .intro {
+    margin: 14px auto 22px;
+    font-size: 1rem;
+  }
+
+  .reflection-nav {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .reflection-link {
+    min-height: 72px;
+    padding: 16px 18px;
+    border-radius: 20px;
+  }
+}
