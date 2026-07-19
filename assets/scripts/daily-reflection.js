@@ -109,7 +109,7 @@ const questions = [
     noLabel: "No",
     enableTextarea: true,
     enableTextHint: true,
-    textHint: "Control is defined as output attachment"
+    textHint: "Control is defined as attachment to Output"
   },
   {
     text: "Did you spend five minutes speaking to God this morning?",
