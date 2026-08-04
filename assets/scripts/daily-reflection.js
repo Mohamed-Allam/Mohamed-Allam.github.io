@@ -55,6 +55,14 @@ const questions = [
     enableTextHint: false,
     textHint: ""
   },
+    {
+    text: "Did you share your thoughts & Connected with someone today?",
+    yesLabel: "Yes",
+    noLabel: "No",
+    enableTextarea: true,
+    enableTextHint: true,
+    textHint: "How many cups did you have?"
+  },
   {
     text: "What could we have done better?",
     yesLabel: "I reflected on this",
@@ -126,14 +134,6 @@ const questions = [
     enableTextarea: true,
     enableTextHint: false,
     textHint: ""
-  },
-  {
-    text: "Did you share your thoughts & Connected with someone today?",
-    yesLabel: "Yes",
-    noLabel: "No",
-    enableTextarea: true,
-    enableTextHint: true,
-    textHint: "How many cups did you have?"
   },
   {
     text: "Did you drink only two cups of coffee today?",
