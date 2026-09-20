@@ -80,7 +80,7 @@ const questions = [
     textHint: "Describe if needed..."
   },
   {
-    text: "Are you chasing life or walking towards God? Are you inside the movie called life or watching it?",
+    text: "Are you running around stressed and chasing life or walking towards God?",
     yesLabel: "Walking towards God",
     noLabel: "Chasing life",
     enableTextarea: true,
